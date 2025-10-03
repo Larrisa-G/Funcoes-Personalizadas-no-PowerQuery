@@ -1,0 +1,22 @@
+// Divide uma coluna textual (colunaOrigem) em N colunas, nomeadas com o item (presente em listaItens) que foi verificado estar presente na coluna que está sendo analizada (colunaOrigem).
+
+let
+    AdicionarColunasFinal = (tabela as table, colunaOrigem as text, listaItens as list) as table =>
+    let
+        AdicionaColunas = List.Accumulate(
+            listaItens,
+            tabela,
+            (estadoAtual, item) =>
+                Table.ReplaceErrorValues(
+                    Table.AddColumn(
+                        estadoAtual,
+                        item,
+                        each if Text.Contains(Record.Field(_, colunaOrigem), item) then item else null
+                    ),
+                    {{item, null}}
+                )
+        )
+    in
+        AdicionaColunas
+in
+    AdicionarColunasFinal
