@@ -3,6 +3,7 @@
 let
     AdicionarColunasFinal = (tabela as table, colunaOrigem as text, listaItens as list) as table =>
     let
+        // Adiciona colunas para cada item
         AdicionaColunas = List.Accumulate(
             listaItens,
             tabela,
@@ -11,12 +12,20 @@ let
                     Table.AddColumn(
                         estadoAtual,
                         item,
-                        each if Text.Contains(Record.Field(_, colunaOrigem), item) then item else null
+                        each if Text.Contains(Text.Upper(Record.Field(_, colunaOrigem)), Text.Upper(item)) then true else false
                     ),
                     {{item, null}}
                 )
+        ),
+
+        // Cria coluna "Outros" com valores que não correspondem a nenhum transtorno da lista
+        AdicionaOutros = Table.AddColumn(
+            AdicionaColunas,
+            "Outros",
+            each if List.AnyTrue(List.Transform(listaItens, (t) => Text.Contains(Text.Upper(Record.Field(_, colunaOrigem)), Text.Upper(t))))
+                then null
+                else Record.Field(_, colunaOrigem)
         )
     in
-        AdicionaColunas
-in
-    AdicionarColunasFinal
+        AdicionaOutros
+in AdicionarColunasFinal
