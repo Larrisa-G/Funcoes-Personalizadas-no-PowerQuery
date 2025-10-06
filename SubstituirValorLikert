@@ -1,0 +1,13 @@
+let SubstituirValorLikert = (tabela as table, nomeColuna as text) as table =>
+    let
+    frequenteList = {"Frequente", "Frequentemente"},
+    #"Valor Substituído" = Table.ReplaceValue(tabela,"Nunca","0",Replacer.ReplaceText,{nomeColuna}),
+    #"Valor Substituído1" = Table.ReplaceValue(#"Valor Substituído","Raramente","0,25",Replacer.ReplaceText,{nomeColuna}),
+    #"Valor Substituído2" = Table.ReplaceValue(#"Valor Substituído1","Às vezes","0,50",Replacer.ReplaceText,{nomeColuna}),
+    #"Valor Substituído3" = Table.TransformColumns(#"Valor Substituído2", {nomeColuna, each if List.Contains(frequenteList, _) then "0,75" else _}),
+    #"Valor Substituído4" = Table.ReplaceValue(#"Valor Substituído3","Sempre","1",Replacer.ReplaceText,{nomeColuna})
+
+    in
+        #"Valor Substituído4"
+        
+in SubstituirValorLikert
